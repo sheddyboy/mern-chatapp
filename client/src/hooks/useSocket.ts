@@ -23,8 +23,7 @@ const useSocket = () => {
     });
 
     return () => {
-      socket.off("connected");
-      socket.close();
+      socket.disconnect();
     };
   }, [user]);
 };

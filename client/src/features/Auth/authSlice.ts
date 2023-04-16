@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { storeUserDetailsInLS, removeUserDetailsInLS } from "helpers";
 import { AuthResProps, UserProps } from "models";
+import socket from "socket";
 
 interface initialStateProps {
   user: UserProps | null;
@@ -29,6 +30,7 @@ const authSlice = createSlice({
       state.token = null;
       state.isLoggedIn = false;
       removeUserDetailsInLS();
+      socket.disconnect();
     },
   },
 });
