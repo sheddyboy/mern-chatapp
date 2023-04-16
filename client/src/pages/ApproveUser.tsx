@@ -178,7 +178,6 @@ const ApproveUser = () => {
                     <TextField
                       fullWidth
                       name="image"
-                      required
                       variant="outlined"
                       type="file"
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
