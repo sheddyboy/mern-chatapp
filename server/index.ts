@@ -1,26 +1,47 @@
-import express, { json, Request, Response } from "express";
+import express, { json } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
-import authRoutes from "./routes/authRoutes";
+import userRoutes from "./routes/userRoutes";
+import noRouteFound from "./middlewares/noRouteFound";
+import authorizeRoute from "./middlewares/authorizeRoute";
+import chatRoutes from "./routes/chatRoutes";
+import messageRoutes from "./routes/messageRoutes";
+import { Server } from "socket.io";
+import { createServer } from "http";
+import socketControllers from "./controllers/socketControllers";
 
 // Configs
+dotenv.config();
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: { origin: process.env.CLIENT_BASE_URL },
+});
 app.use(json());
 app.use(cors());
-dotenv.config();
-app.use("/", (req: Request, res: Response, next) => {
+app.use("/", (req, res, next) => {
   console.log(req.method, req.path, new Date());
   next();
 });
+app.use("/uploads", express.static("uploads"));
 
 // Routes
-app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/chat", authorizeRoute, chatRoutes);
+app.use("/api/message", authorizeRoute, messageRoutes);
 
+// No Route Found
+app.use(noRouteFound);
+
+// Socket.io
+io.on("connection", socketControllers);
+
+// Connect to DB
 mongoose
   .connect(process.env.MONGODB_URI!)
   .then(() => {
-    app.listen(process.env.PORT, () => {
+    httpServer.listen(process.env.PORT, () => {
       console.log(
         `Connected to mongoDB and listening on port ${process.env.PORT}`
       );
