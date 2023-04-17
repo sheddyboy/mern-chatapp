@@ -36,13 +36,14 @@ const socketControllers = (socket: Socket, io: Server) => {
       console.log(`${sender.name} is sending a message to ${chat.chatName}`);
       try {
         const message = await messageModel.create({
-          chat: chat._id,
+          chat: {
+            _id: chat._id,
+            chatName: chat.chatName,
+            isGroupChat: chat.isGroupChat,
+          },
           message: sentMessage,
-          sender: sender._id,
+          sender: { _id: sender._id, name: sender.name },
         });
-        await message.populate("sender", "name picture");
-        await message.populate("chat");
-        await message.populate("chat.users", "name picture email");
 
         const userIds = chat.users.map((user) => user._id);
         io.to(userIds).emit("receive_message", message);

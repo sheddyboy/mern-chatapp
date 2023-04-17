@@ -3,9 +3,13 @@ import chatModel from "./chatModel";
 
 const messageModel = new Schema(
   {
-    sender: { type: Schema.Types.ObjectId, ref: "User" },
+    sender: { _id: { type: Schema.Types.ObjectId, ref: "User" }, name: String },
     message: { type: String, trim: true },
-    chat: { type: Schema.Types.ObjectId, ref: "Chat" },
+    chat: {
+      _id: { type: Schema.Types.ObjectId, ref: "Chat" },
+      chatName: String,
+      isGroupChat: Boolean,
+    },
   },
   { timestamps: true }
 );

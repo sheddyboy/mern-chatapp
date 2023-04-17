@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import messageModel from "../models/messageModel";
+import { Types } from "mongoose";
 
 const sendMessage = async (req: Request, res: Response) => {
   const { message: content, chatId } = req.body;
@@ -25,12 +26,12 @@ const allMessages = async (req: Request, res: Response) => {
 
   try {
     const messages = await messageModel
-      .find({ chat: chatId })
+      .find({ "chat._id": chatId })
       .populate("sender", "name picture email")
       .populate("chat");
     res.status(200).json(messages);
   } catch (err) {
-    res.status(400).json(err);
+    return res.status(400).json(err);
   }
 };
 

@@ -88,7 +88,7 @@ const ChatBox = ({ selectedChat }: ChatBoxProps) => {
       console.log("not typing");
       socket.emit("stop_typing", selectedChat?._id);
       setIsTyping(false);
-    }, 2000)
+    }, 500)
   );
 
   return (

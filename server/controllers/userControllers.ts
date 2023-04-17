@@ -2,14 +2,30 @@ import { Request, Response } from "express";
 import userModel from "../models/userModel";
 import bcrypt from "bcrypt";
 import { generateToken, verifyToken } from "../helpers";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: "dphugvqtn",
+  api_key: "184465192457814",
+  api_secret: "yPgNVd1OYlgICmR7bmZVICdImSA",
+});
 
 const registerController = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
+  let imagePath = "";
+  req.file &&
+    (await cloudinary.uploader.upload(req.file.path, (err, result) => {
+      if (err) {
+        imagePath = "";
+      }
+      if (result) {
+        imagePath = result.secure_url;
+      }
+    }));
   if (!(name && email && password))
     return res
       .status(400)
       .json({ message: "Name Email and Password are required" });
-  const imagePath = req.file?.path;
 
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);

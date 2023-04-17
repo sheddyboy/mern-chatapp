@@ -33,7 +33,7 @@ const SearchUserItem = ({ user, onClick, isLoading }: SearchUserItemProps) => {
       <CardHeader
         avatar={
           <Avatar
-            src={process.env.REACT_APP_BASE_URL + "/" + user?.picture}
+            src={user?.picture}
             sx={{ objectPosition: "top" }}
             imgProps={{
               sx: {

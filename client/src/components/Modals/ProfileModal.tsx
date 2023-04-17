@@ -61,11 +61,11 @@ const ProfileModal = () => {
         >
           <Avatar
             sx={{ width: 80, height: 80, marginBottom: 2 }}
-            src={`${process.env.REACT_APP_BASE_URL}/${
+            src={
               isUserModal
                 ? loggedInUser?.picture
                 : singleChatReceiverUser?.picture
-            }`}
+            }
             imgProps={{
               sx: {
                 objectPosition: "top",

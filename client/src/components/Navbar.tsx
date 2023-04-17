@@ -115,7 +115,7 @@ const Navbar = () => {
                   objectPosition: "top",
                 },
               }}
-              src={process.env.REACT_APP_BASE_URL + "/" + user?.picture}
+              src={user?.picture}
             />
             <ExpandMoreIcon fontSize="small" id="options" />
           </Stack>
