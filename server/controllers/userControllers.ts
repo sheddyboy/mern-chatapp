@@ -5,9 +5,9 @@ import { generateToken, verifyToken } from "../helpers";
 import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
-  cloud_name: "dphugvqtn",
-  api_key: "184465192457814",
-  api_secret: "yPgNVd1OYlgICmR7bmZVICdImSA",
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 const registerController = async (req: Request, res: Response) => {
