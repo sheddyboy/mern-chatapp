@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "app/store";
 import { ChatProps } from "models";
+import socket from "socket";
 
 const chatApi = createApi({
   reducerPath: "chatApi",
@@ -23,6 +24,19 @@ const chatApi = createApi({
               "Chat",
             ]
           : ["Chat"],
+      onCacheEntryAdded(arg, { dispatch }) {
+        socket.on("new_chat", (chat) => {
+          dispatch(
+            chatApi.util.updateQueryData(
+              "fetchUserChats",
+              undefined,
+              (cachedChats) => {
+                cachedChats.push(chat);
+              }
+            )
+          );
+        });
+      },
     }),
     singleChat: builder.mutation<ChatProps, { receiverId: string }>({
       query: (body) => ({ url: "/api/chat", method: "POST", body }),

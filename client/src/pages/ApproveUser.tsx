@@ -19,7 +19,7 @@ import TabPanel from "../components/TabPanel";
 const ApproveUser = () => {
   const dispatch = useAppDispatch();
   const [toggleTab, setToggleTab] = useState(0);
-  const [registerUser] = useRegisterMutation();
+  const [registerUser, { isLoading: signUpLoading }] = useRegisterMutation();
   const [logInUser, { isLoading: logInLoading }] = useLogInMutation();
   const [registerFormData, setRegisterFormData] = useState(new FormData());
   const [loginFormData, setLoginFormData] = useState(new FormData());
@@ -112,8 +112,8 @@ const ApproveUser = () => {
                     <Button
                       fullWidth
                       variant="outlined"
-                      disabled={logInLoading}
                       type="submit"
+                      disabled={logInLoading}
                       sx={{ position: "relative" }}
                     >
                       {logInLoading ? "LOGGING IN..." : "LOG IN"}
@@ -186,8 +186,20 @@ const ApproveUser = () => {
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <Button fullWidth variant="contained" type="submit">
-                      Sign Up
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      type="submit"
+                      disabled={logInLoading}
+                      sx={{ position: "relative" }}
+                    >
+                      {signUpLoading ? "SIGNING UP..." : "SIGN UP"}
+                      {signUpLoading && (
+                        <CircularProgress
+                          sx={{ position: "absolute" }}
+                          size={20}
+                        />
+                      )}
                     </Button>
                   </Grid>
                 </Grid>

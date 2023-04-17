@@ -7,15 +7,17 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { useAppDispatch } from "app/hooks";
+import { useAppDispatch, useAppSelector } from "app/hooks";
 import { useLazyFetchUsersQuery } from "features/Auth/authApi";
 import { useSingleChatMutation } from "features/Chat/chatApi";
 import { toggleDrawerModal } from "features/Modal/modalSlice";
 import React, { useState } from "react";
+import socket from "socket";
 import SearchUserItem from "./SearchUserItem";
 import SearchUserItemSkeletonContainer from "./Skeletons/SearchUserItemSkeletonContainer";
 
 const SearchUser = () => {
+  const { user } = useAppSelector((state) => state.authSlice);
   const dispatch = useAppDispatch();
   const [singleChat, { isLoading: singleChatLoading }] =
     useSingleChatMutation();
@@ -35,8 +37,8 @@ const SearchUser = () => {
     singleChat({ receiverId: userId })
       .unwrap()
       .then((chat) => {
+        socket.emit("new_chat", chat, user);
         dispatch(toggleDrawerModal());
-        console.log(chat);
       })
       .catch((err) => {
         console.log(err);

@@ -34,7 +34,7 @@ const SearchUserItem = ({ user, onClick, isLoading }: SearchUserItemProps) => {
         avatar={
           <Avatar
             src={process.env.REACT_APP_BASE_URL + "/" + user?.picture}
-            sx={{ objectPosition: "top", color: "red" }}
+            sx={{ objectPosition: "top" }}
             imgProps={{
               sx: {
                 objectPosition: "top",

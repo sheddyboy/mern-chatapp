@@ -24,6 +24,7 @@ const messageApi = createApi({
             const subscriptions = getState().messageApi.subscriptions;
             const subscriptionsLength = Object.keys(subscriptions).length;
             if (subscriptionsLength !== 1) return;
+            console.log("ran");
             socket.on("receive_message", (message: MessageProps) => {
               const { selectedChat } = (getState() as RootState).chatSlice;
               dispatch(
@@ -31,6 +32,7 @@ const messageApi = createApi({
                   "getChatMessages",
                   { chatId: message.chat._id },
                   (messagesCache) => {
+                    console.log(messagesCache);
                     messagesCache.push(message);
                   }
                 )

@@ -35,7 +35,7 @@ app.use("/api/message", authorizeRoute, messageRoutes);
 app.use(noRouteFound);
 
 // Socket.io
-io.on("connection", socketControllers);
+io.on("connection", (socket) => socketControllers(socket, io));
 
 // Connect to DB
 mongoose

@@ -23,6 +23,7 @@ import { useFetchUsersQuery } from "features/Auth/authApi";
 import { UserProps } from "models";
 import { useCreateGroupChatMutation } from "features/Chat/chatApi";
 import { Close } from "@mui/icons-material";
+import socket from "socket";
 
 const CreateGroupChatModal = () => {
   const [open, setOpen] = React.useState(false);
@@ -41,7 +42,10 @@ const CreateGroupChatModal = () => {
   const [userName, setUserName] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<UserProps[]>([]);
   const { data: users } = useFetchUsersQuery(userName);
-  const { createGroupChatModal } = useAppSelector((state) => state.modalSlice);
+  const [{ createGroupChatModal }, { user }] = useAppSelector((state) => [
+    state.modalSlice,
+    state.authSlice,
+  ]);
   const dispatch = useAppDispatch();
   const handleClick = (user: UserProps) => {
     if (selectedUsers.includes(user)) return;
@@ -59,7 +63,8 @@ const CreateGroupChatModal = () => {
     const selectedUsersId = selectedUsers.map((user) => user._id);
     createGroupChat({ chatName: groupName, usersIds: selectedUsersId })
       .unwrap()
-      .then(() => {
+      .then((chat) => {
+        socket.emit("new_chat", chat, user);
         setGroupName("");
         setUserName("");
         setSelectedUsers([]);

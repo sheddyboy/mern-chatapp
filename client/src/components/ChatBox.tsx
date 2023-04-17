@@ -38,7 +38,7 @@ const ChatBox = ({ selectedChat }: ChatBoxProps) => {
   const { data: messages, isFetching } = useGetChatMessagesQuery({
     chatId: selectedChat._id,
   });
-  const [sendMessage] = useSendMessageMutation();
+  //   const [sendMessage] = useSendMessageMutation();
 
   const [socketTyping, setSocketTyping] = useState(false);
   const [socketTypingRoom, setSocketTypingRoom] = useState("");
@@ -70,8 +70,8 @@ const ChatBox = ({ selectedChat }: ChatBoxProps) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!messageInput) return;
-    selectedChat &&
-      sendMessage({ chatId: selectedChat._id, message: messageInput });
+    socket.emit("send_message", loggedInUser, selectedChat, messageInput);
+    // sendMessage({ chatId: selectedChat._id, message: messageInput });
 
     setMessageInput("");
   };

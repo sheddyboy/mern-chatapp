@@ -14,7 +14,7 @@ const userModel = new Schema<IUser>(
     password: { type: String, required: true },
     picture: {
       type: String,
-      default: "uploads/userAvatar/public/defaultUser.png",
+      default: "uploads/userAvatar/defaultUser.jpg",
     },
   },
   { timestamps: true }

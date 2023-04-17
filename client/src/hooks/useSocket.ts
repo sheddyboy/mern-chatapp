@@ -22,6 +22,10 @@ const useSocket = () => {
       socket.emit("create_user_room", user);
     });
 
+    socket.on("send_message_error", (err) => {
+      console.log(err);
+    });
+
     return () => {
       socket.disconnect();
     };

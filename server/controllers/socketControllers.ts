@@ -1,7 +1,8 @@
-import { Socket } from "socket.io";
-import { MessageProps, UserProps } from "../../types";
+import { Server, Socket } from "socket.io";
+import { ChatProps, MessageProps, UserProps } from "../../types";
+import messageModel from "../models/messageModel";
 
-const socketControllers = (socket: Socket) => {
+const socketControllers = (socket: Socket, io: Server) => {
   // User connected
   console.log("connected id: ", socket.id);
   socket.emit("connected");
@@ -13,6 +14,14 @@ const socketControllers = (socket: Socket) => {
     socket.emit("connected");
   });
 
+  //   New chat
+  socket.on("new_chat", (chat: ChatProps, user: UserProps) => {
+    chat.users.map((chatUser) => {
+      if (chatUser._id === user._id) return;
+      socket.to(chatUser._id).emit("new_chat", chat);
+    });
+  });
+
   //   User joins chat
   socket.on("join_chat", (chatId: string) => {
     if (socket.rooms.has(chatId)) return;
@@ -21,18 +30,27 @@ const socketControllers = (socket: Socket) => {
   });
 
   //   User sends message
-  socket.on("send_message", (message: MessageProps) => {
-    console.log("send_message");
-    const senderId = message.sender._id;
-    const users = message.chat.users;
+  socket.on(
+    "send_message",
+    async (sender: UserProps, chat: ChatProps, sentMessage: string) => {
+      console.log(`${sender.name} is sending a message to ${chat.chatName}`);
+      try {
+        const message = await messageModel.create({
+          chat: chat._id,
+          message: sentMessage,
+          sender: sender._id,
+        });
+        await message.populate("sender", "name picture");
+        await message.populate("chat");
+        await message.populate("chat.users", "name picture email");
 
-    users.map((user) => {
-      if (user._id === senderId) return;
-      console.log("receive_message");
-
-      socket.to(user._id).emit("receive_message", message);
-    });
-  });
+        const userIds = chat.users.map((user) => user._id);
+        io.to(userIds).emit("receive_message", message);
+      } catch (err) {
+        socket.to(sender._id).emit("send_message_error", err);
+      }
+    }
+  );
 
   //   User start typing
   socket.on("start_typing", (chatId: string) => {
