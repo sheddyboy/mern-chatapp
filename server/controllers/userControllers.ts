@@ -12,7 +12,7 @@ cloudinary.config({
 
 const registerController = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
-  let imagePath = `${process.env.CLIENT_BASE_URL}/uploads/userAvatar/defaultUser.jpg`;
+  let imagePath = `${process.env.SERVER_BASE_URL}/uploads/userAvatar/defaultUser.jpg`;
   req.file &&
     (await cloudinary.uploader.upload(req.file.path, (err, result) => {
       if (err) {

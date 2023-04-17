@@ -1,10 +1,12 @@
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
   CircularProgress,
   Grid,
+  Snackbar,
   Stack,
   Tab,
   Tabs,
@@ -13,16 +15,33 @@ import {
 import { useAppDispatch } from "app/hooks";
 import { useLogInMutation, useRegisterMutation } from "features/Auth/authApi";
 import { logIn } from "features/Auth/authSlice";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TabPanel from "../components/TabPanel";
 
 const ApproveUser = () => {
   const dispatch = useAppDispatch();
   const [toggleTab, setToggleTab] = useState(0);
-  const [registerUser, { isLoading: signUpLoading }] = useRegisterMutation();
-  const [logInUser, { isLoading: logInLoading }] = useLogInMutation();
+  const [errorMessage, setErrorMessage] = useState("");
+  const [toggleError, setToggleError] = useState(false);
+  const [registerUser, { isLoading: signUpLoading, error: registerError }] =
+    useRegisterMutation();
+  const [logInUser, { isLoading: logInLoading, error: logInError }] =
+    useLogInMutation();
   const [registerFormData, setRegisterFormData] = useState(new FormData());
   const [loginFormData, setLoginFormData] = useState(new FormData());
+
+  useEffect(() => {
+    if (registerError && "data.message" in registerError) {
+      setToggleError(true);
+      setErrorMessage(registerError["data.message"] as string);
+      return;
+    }
+    if (logInError && "data.message" in logInError) {
+      setToggleError(true);
+      setErrorMessage(logInError["data.message"] as string);
+      return;
+    }
+  }, [logInError, registerError]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setToggleTab(newValue);
@@ -188,7 +207,7 @@ const ApproveUser = () => {
                   <Grid item xs={12}>
                     <Button
                       fullWidth
-                      variant="contained"
+                      variant="outlined"
                       type="submit"
                       disabled={logInLoading}
                       sx={{ position: "relative" }}
@@ -208,6 +227,20 @@ const ApproveUser = () => {
           </CardContent>
         </Card>
       </Stack>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        open={toggleError}
+        autoHideDuration={3000}
+        onClose={() => setToggleError((prev) => !prev)}
+      >
+        <Alert
+          onClose={() => setToggleError((prev) => !prev)}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
