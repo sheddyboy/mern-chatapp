@@ -58,7 +58,7 @@ const logInController = (req: Request, res: Response) => {
             token: generateToken({ userId: user._id, email: user.email }),
           });
       } else {
-        return res.status(401).json({ message: "Invalid Credentials" });
+        return res.status(401).json({ message: "User not found" });
       }
     })
     .catch((err) => {

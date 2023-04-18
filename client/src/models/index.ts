@@ -47,3 +47,9 @@ export interface MessageProps {
   updatedAt: Date;
   __v: number;
 }
+
+export interface AuthErrorProps {
+  data: { message: string };
+  status: string | number;
+  error: string;
+}

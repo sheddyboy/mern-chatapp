@@ -17,31 +17,35 @@ import { useLogInMutation, useRegisterMutation } from "features/Auth/authApi";
 import { logIn } from "features/Auth/authSlice";
 import React, { useEffect, useState } from "react";
 import TabPanel from "../components/TabPanel";
+import { AuthErrorProps } from "models";
 
 const ApproveUser = () => {
   const dispatch = useAppDispatch();
   const [toggleTab, setToggleTab] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
+  const [error, setError] = useState<AuthErrorProps | null>(null);
   const [toggleError, setToggleError] = useState(false);
-  const [registerUser, { isLoading: signUpLoading, error: registerError }] =
-    useRegisterMutation();
-  const [logInUser, { isLoading: logInLoading, error: logInError }] =
-    useLogInMutation();
+  const [registerUser, { isLoading: signUpLoading }] = useRegisterMutation();
+  const [logInUser, { isLoading: logInLoading }] = useLogInMutation();
   const [registerFormData, setRegisterFormData] = useState(new FormData());
   const [loginFormData, setLoginFormData] = useState(new FormData());
 
   useEffect(() => {
-    if (registerError && "data.message" in registerError) {
+    if (error && error.status === 400) {
       setToggleError(true);
-      setErrorMessage(registerError["data.message"] as string);
+      setErrorMessage(error.data.message);
       return;
     }
-    if (logInError && "data.message" in logInError) {
+    if (error && error.status === 401) {
       setToggleError(true);
-      setErrorMessage(logInError["data.message"] as string);
+      setErrorMessage(error.data.message);
       return;
     }
-  }, [logInError, registerError]);
+    if (error) {
+      setToggleError(true);
+      setErrorMessage("Something went wrong");
+    }
+  }, [error]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setToggleTab(newValue);
@@ -52,14 +56,14 @@ const ApproveUser = () => {
     logInUser(loginFormData)
       .unwrap()
       .then((data) => dispatch(logIn(data)))
-      .catch((err) => console.log("err", err));
+      .catch((err) => setError(err));
   };
   const handleRegister = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     registerUser(registerFormData)
       .unwrap()
       .then((data) => dispatch(logIn(data)))
-      .catch((err) => console.log(err));
+      .catch((err) => setError(err));
   };
 
   const handleInputChange = (
