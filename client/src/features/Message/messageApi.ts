@@ -32,7 +32,6 @@ const messageApi = createApi({
                   "getChatMessages",
                   { chatId: message.chat._id },
                   (messagesCache) => {
-                    console.log(messagesCache);
                     messagesCache.push(message);
                   }
                 )
