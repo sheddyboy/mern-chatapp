@@ -25,7 +25,7 @@ const chatApi = createApi({
             ]
           : ["Chat"],
       onCacheEntryAdded(arg, { dispatch }) {
-        socket.on("new_chat", (chat) => {
+        socket.on("new_chat_sent", (chat) => {
           dispatch(
             chatApi.util.updateQueryData(
               "fetchUserChats",

@@ -49,42 +49,10 @@ const messageApi = createApi({
         { type: "Messages", id: chatId },
       ],
     }),
-    sendMessage: builder.mutation<
-      MessageProps,
-      { chatId: string; message: string }
-    >({
-      query: (body) => ({
-        method: "POST",
-        body,
-        url: "/api/message",
-      }),
-      onQueryStarted({ chatId }, { dispatch, queryFulfilled }) {
-        queryFulfilled
-          .then(({ data: message }) => {
-            socket.emit("send_message", message);
-
-            dispatch(
-              messageApi.util.updateQueryData(
-                "getChatMessages",
-                { chatId },
-                (cachedMessages) => {
-                  cachedMessages.push(message);
-                }
-              )
-            );
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      },
-    }),
   }),
 });
 
-export const {
-  useLazyGetChatMessagesQuery,
-  useSendMessageMutation,
-  useGetChatMessagesQuery,
-} = messageApi;
+export const { useLazyGetChatMessagesQuery, useGetChatMessagesQuery } =
+  messageApi;
 
 export default messageApi;

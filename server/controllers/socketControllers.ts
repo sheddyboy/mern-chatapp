@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { Server, Socket } from "socket.io";
 import { ChatProps, MessageProps, UserProps } from "../../types";
 import messageModel from "../models/messageModel";
@@ -18,7 +19,7 @@ const socketControllers = (socket: Socket, io: Server) => {
   socket.on("new_chat", (chat: ChatProps, user: UserProps) => {
     chat.users.map((chatUser) => {
       if (chatUser._id === user._id) return;
-      socket.to(chatUser._id).emit("new_chat", chat);
+      socket.to(chatUser._id).emit("new_chat_sent", chat);
     });
   });
 
@@ -32,7 +33,12 @@ const socketControllers = (socket: Socket, io: Server) => {
   //   User sends message
   socket.on(
     "send_message",
-    async (sender: UserProps, chat: ChatProps, sentMessage: string) => {
+    async (
+      sender: UserProps,
+      chat: ChatProps,
+      usersIds: { _id: Types.ObjectId }[],
+      sentMessage: string
+    ) => {
       console.log(`${sender.name} is sending a message to ${chat.chatName}`);
       try {
         const message = await messageModel.create({
@@ -40,6 +46,7 @@ const socketControllers = (socket: Socket, io: Server) => {
             _id: chat._id,
             chatName: chat.chatName,
             isGroupChat: chat.isGroupChat,
+            users: usersIds,
           },
           message: sentMessage,
           sender: { _id: sender._id, name: sender.name },

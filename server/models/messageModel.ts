@@ -9,6 +9,7 @@ const messageModel = new Schema(
       _id: { type: Schema.Types.ObjectId, ref: "Chat" },
       chatName: String,
       isGroupChat: Boolean,
+      users: [{ _id: { type: Schema.Types.ObjectId, ref: "User" } }],
     },
   },
   { timestamps: true }

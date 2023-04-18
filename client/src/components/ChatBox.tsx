@@ -14,10 +14,7 @@ import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 
 import React, { useEffect, useRef, useState } from "react";
 import Chats from "./Chats";
-import {
-  useGetChatMessagesQuery,
-  useSendMessageMutation,
-} from "features/Message/messageApi";
+import { useGetChatMessagesQuery } from "features/Message/messageApi";
 import { removeSelectedChat } from "features/Chat/chatSlice";
 import { useAppDispatch, useAppSelector } from "app/hooks";
 import socket from "socket";
@@ -38,7 +35,6 @@ const ChatBox = ({ selectedChat }: ChatBoxProps) => {
   const { data: messages, isFetching } = useGetChatMessagesQuery({
     chatId: selectedChat._id,
   });
-  //   const [sendMessage] = useSendMessageMutation();
 
   const [socketTyping, setSocketTyping] = useState(false);
   const [socketTypingRoom, setSocketTypingRoom] = useState("");
@@ -66,11 +62,20 @@ const ChatBox = ({ selectedChat }: ChatBoxProps) => {
     return selectedChat.users.find((user) => user._id !== loggedInUser._id)
       ?.name;
   };
+  const selectedChatUsers = selectedChat.users.map((user) => {
+    return { _id: user._id };
+  });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!messageInput) return;
-    socket.emit("send_message", loggedInUser, selectedChat, messageInput);
+    socket.emit(
+      "send_message",
+      loggedInUser,
+      selectedChat,
+      selectedChatUsers,
+      messageInput
+    );
     // sendMessage({ chatId: selectedChat._id, message: messageInput });
 
     setMessageInput("");
