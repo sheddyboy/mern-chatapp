@@ -17,6 +17,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: { origin: process.env.CLIENT_BASE_URL },
+  pingTimeout: 60000,
 });
 app.use(json());
 app.use(cors());
