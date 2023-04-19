@@ -1,35 +1,69 @@
-import { useAppSelector } from "app/hooks";
+import { useAppDispatch } from "app/hooks";
+import { store } from "app/store";
+import messageApi from "features/Message/messageApi";
+import { setNotification } from "features/Message/messageSlice";
+import { MessageProps } from "models";
 import { useEffect } from "react";
 import socket from "socket";
 
 const useSocket = () => {
-  const [{ user }] = useAppSelector((state) => [
-    state.authSlice,
-    state.chatSlice,
-  ]);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     socket.connect();
-    socket.io.on("reconnect_attempt", (e) => {
-      console.log("reconnect_attempt: ", e);
-    });
-    socket.io.on("reconnect_failed", () => {
-      console.log("failed to connect to web socket");
-    });
-
-    socket.on("connected", () => {
-      console.log("connected");
-      socket.emit("create_user_room", user);
-    });
-
-    socket.on("send_message_error", (err) => {
-      console.log(err);
-    });
 
     return () => {
       socket.disconnect();
     };
-  }, [user]);
+  }, []);
+
+  useEffect(() => {
+    const reconnection = () => {
+      socket.io.on("reconnect_attempt", (e) => {
+        console.log("reconnect_attempt: ", e);
+      });
+      socket.io.on("reconnect_failed", () => {
+        console.log("failed to connect to web socket");
+      });
+    };
+    return () => reconnection();
+  }, []);
+
+  useEffect(() => {
+    const createUserRoomWhenConnected = () => {
+      socket.on("connected", () => {
+        console.log("connected");
+        socket.emit("create_user_room", store.getState().authSlice.user);
+      });
+    };
+
+    return () => createUserRoomWhenConnected();
+  }, []);
+
+  useEffect(() => {
+    const messageOrNotification = () => {
+      socket.on("receive_message", (message: MessageProps) => {
+        dispatch(
+          messageApi.util.updateQueryData(
+            "getChatMessages",
+            { chatId: message.chat._id },
+            (messagesCache) => {
+              messagesCache.push(message);
+            }
+          )
+        );
+        if (message.chat._id !== store.getState().chatSlice.selectedChat?._id) {
+          console.log("send notification");
+          dispatch(setNotification(message));
+        }
+      });
+      socket.on("send_message_error", (err) => {
+        console.log(err);
+      });
+    };
+
+    return () => messageOrNotification();
+  }, [dispatch]);
 };
 
 export default useSocket;
