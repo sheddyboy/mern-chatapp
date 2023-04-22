@@ -17,13 +17,14 @@ import {
 import { useAppDispatch, useAppSelector } from "app/hooks";
 import { toggleCreateGroupChatModal } from "features/Modal/modalSlice";
 import CloseIcon from "@mui/icons-material/Close";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import SearchUserItem from "components/SearchUserItem";
-import { useFetchUsersQuery } from "features/Auth/authApi";
+import { useLazyFetchUsersQuery } from "features/Auth/authApi";
 import { UserProps } from "models";
 import { useCreateGroupChatMutation } from "features/Chat/chatApi";
 import { Close } from "@mui/icons-material";
 import socket from "socket";
+import debounce from "lodash.debounce";
 
 const CreateGroupChatModal = () => {
   const [open, setOpen] = React.useState(false);
@@ -40,8 +41,10 @@ const CreateGroupChatModal = () => {
   const [createGroupChat, { isLoading }] = useCreateGroupChatMutation();
   const [groupName, setGroupName] = useState("");
   const [userName, setUserName] = useState("");
+  const [users, setUsers] = useState<UserProps[] | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<UserProps[]>([]);
-  const { data: users } = useFetchUsersQuery(userName);
+  // const { data: users } = useFetchUsersQuery(userName);
+  const [fetchUsers] = useLazyFetchUsersQuery({});
   const [{ createGroupChatModal }, { user }] = useAppSelector((state) => [
     state.modalSlice,
     state.authSlice,
@@ -57,6 +60,15 @@ const CreateGroupChatModal = () => {
     );
     setSelectedUsers(filteredSelectedUsers);
   };
+  const handleUserSearchDebounce = useRef(
+    debounce((userName: string) => {
+      if (userName === "") return;
+      fetchUsers(userName, true)
+        .unwrap()
+        .then((data) => setUsers(data))
+        .catch((err) => console.log(err));
+    }, 1000)
+  );
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (selectedUsers.length < 2) return setOpen(true);
@@ -107,7 +119,10 @@ const CreateGroupChatModal = () => {
               label="Users"
               sx={{ marginBottom: 1 }}
               value={userName}
-              onChange={(e) => setUserName(e.target.value)}
+              onChange={(e) => {
+                setUserName(e.target.value);
+                handleUserSearchDebounce.current(e.target.value);
+              }}
             />
             <Box maxWidth="350px" overflow="scroll" marginBottom={1} py={1}>
               <Stack direction="row" spacing={1}>

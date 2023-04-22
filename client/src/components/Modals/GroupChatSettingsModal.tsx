@@ -13,13 +13,14 @@ import {
   TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SearchUserItem from "components/SearchUserItem";
 import { useAppDispatch, useAppSelector } from "app/hooks";
 import { toggleGroupChatSettingsModal } from "features/Modal/modalSlice";
 import { UserProps } from "models";
-import { useFetchUsersQuery } from "features/Auth/authApi";
+import { useLazyFetchUsersQuery } from "features/Auth/authApi";
 import { useUpdateGroupChatMutation } from "features/Chat/chatApi";
+import debounce from "lodash.debounce";
 
 const GroupChatSettingsModal = () => {
   const [{ groupChatSettingsModal }, { selectedChat }] = useAppSelector(
@@ -29,7 +30,8 @@ const GroupChatSettingsModal = () => {
   const [groupName, setGroupName] = useState(selectedChat?.chatName);
   const [selectedUsers, setSelectedUsers] = useState(selectedChat?.users);
   const [userName, setUserName] = useState("");
-  const { data: users } = useFetchUsersQuery(userName);
+  const [users, setUsers] = useState<UserProps[] | null>(null);
+  const [fetchUsers] = useLazyFetchUsersQuery();
   const [updateGroupChat, { isLoading }] = useUpdateGroupChatMutation();
   useEffect(() => {
     if (!selectedChat) return;
@@ -49,6 +51,16 @@ const GroupChatSettingsModal = () => {
       selectedUsers?.filter((user) => user._id !== removedUser._id)
     );
   };
+  const handleUserSearchDebounce = useRef(
+    debounce((userName: string) => {
+      if (userName === "") return;
+      fetchUsers(userName)
+        .unwrap()
+        .then((data) => setUsers(data))
+        .catch((err) => console.log(err));
+    }, 1000)
+  );
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!groupName || !selectedChat || !selectedUsers) return;
@@ -95,7 +107,10 @@ const GroupChatSettingsModal = () => {
             label="Users"
             sx={{ marginBottom: 1 }}
             value={userName}
-            onChange={(e) => setUserName(e.target.value)}
+            onChange={(e) => {
+              setUserName(e.target.value);
+              handleUserSearchDebounce.current(e.target.value);
+            }}
           />
           <Box maxWidth="350px" overflow="scroll" marginBottom={1} py={1}>
             <Stack direction="row" spacing={1}>

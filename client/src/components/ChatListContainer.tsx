@@ -9,9 +9,9 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
-import React, { useEffect } from "react";
+import React from "react";
 import ChatItem from "./ChatItem";
-import { useLazyFetchUserChatsQuery } from "features/Chat/chatApi";
+import { useFetchUserChatsQuery } from "features/Chat/chatApi";
 import { toggleCreateGroupChatModal } from "features/Modal/modalSlice";
 import { useAppDispatch, useAppSelector } from "app/hooks";
 import { setSelectedChat } from "features/Chat/chatSlice";
@@ -20,12 +20,8 @@ import socket from "socket";
 
 const ChatListContainer = () => {
   const dispatch = useAppDispatch();
-  const [getChats, { data: chats, isLoading }] = useLazyFetchUserChatsQuery();
+  const { isLoading, data: chats } = useFetchUserChatsQuery();
   const { selectedChat } = useAppSelector((state) => state.chatSlice);
-
-  useEffect(() => {
-    getChats();
-  }, [getChats]);
 
   return (
     <Grid

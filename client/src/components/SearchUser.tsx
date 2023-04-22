@@ -26,7 +26,7 @@ const SearchUser = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!inputValue) return setOpen(true);
-    getUsers(inputValue);
+    getUsers(inputValue, true);
   };
   const handleChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>

@@ -24,8 +24,10 @@ import { logOut } from "features/Auth/authSlice";
 import { setSelectedChat } from "features/Chat/chatSlice";
 import { MessageProps } from "models";
 import { setNotification } from "features/Message/messageSlice";
+import { useFetchUserChatsQuery } from "features/Chat/chatApi";
 
 const Navbar = () => {
+  const { data: chats } = useFetchUserChatsQuery();
   const theme = useTheme();
   const sm = useMediaQuery(theme.breakpoints.down("sm"));
   const dispatch = useAppDispatch();
@@ -42,10 +44,12 @@ const Navbar = () => {
     setAnchorEl(event.currentTarget);
   };
   const handleNotificationClick = (message: MessageProps) => {
+    if (!chats) return;
+    const selectedChat = chats.find((chat) => chat._id === message.chat._id);
     const newNotificationsList = notifications.filter(
       (notification) => notification._id !== message._id
     );
-    dispatch(setSelectedChat(message.chat));
+    selectedChat && dispatch(setSelectedChat(selectedChat));
     dispatch(setNotification(newNotificationsList));
   };
   const handleClose = () => {

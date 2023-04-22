@@ -42,7 +42,7 @@ const SearchUserItem = ({ user, onClick, isLoading }: SearchUserItemProps) => {
             }}
           />
         }
-        title={<Typography variant="inherit">{user.name}</Typography>}
+        title={<Typography variant="subtitle1">{user.name}</Typography>}
         subheader={
           <Typography color="inherit" variant="subtitle2">
             {user.email}
