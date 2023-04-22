@@ -31,9 +31,13 @@ const useSocket = () => {
 
   useEffect(() => {
     const createUserRoomWhenConnected = () => {
-      socket.on("connect", () => {
-        console.log("Connected to server!");
-        socket.emit("create_user_room", store.getState().authSlice.user);
+      socket.on("connected", () => {
+        console.log("received connected");
+
+        socket.on("connect", () => {
+          console.log("Connected to server!");
+          socket.emit("create_user_room", store.getState().authSlice.user);
+        });
       });
       socket.on("disconnect", (e) => {
         console.log("Disconnected from server! Reason: " + e);

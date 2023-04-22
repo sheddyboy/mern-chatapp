@@ -4,6 +4,7 @@ import { ChatProps, MessageProps, UserProps } from "../../types";
 import messageModel from "../models/messageModel";
 
 const socketControllers = (socket: Socket, io: Server) => {
+  socket.emit("connected");
   // User connected
   console.log("connected id: ", socket.id);
 
