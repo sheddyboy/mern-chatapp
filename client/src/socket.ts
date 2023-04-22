@@ -5,7 +5,7 @@ const socket = io(process.env.REACT_APP_BASE_URL!, {
   reconnectionDelay: 5000,
   autoConnect: false,
   // withCredentials: true,
-  // transports: ["websocket"],
+  transports: ["websocket"],
 });
 
 export default socket;
