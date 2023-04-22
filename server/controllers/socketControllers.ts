@@ -6,7 +6,7 @@ import messageModel from "../models/messageModel";
 const socketControllers = (socket: Socket, io: Server) => {
   // User connected
   console.log("connected id: ", socket.id);
-  socket.emit("connected");
+
   //   Create user room
   socket.on("create_user_room", (user: UserProps) => {
     if (socket.rooms.has(user._id)) return;
