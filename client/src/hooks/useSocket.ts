@@ -35,6 +35,7 @@ const useSocket = () => {
 
   useEffect(() => {
     // const createUserRoomWhenConnected = () => {
+    console.log("first");
     socket.on("connected", () => {
       console.log("connected received");
 
@@ -49,28 +50,29 @@ const useSocket = () => {
   }, []);
 
   useEffect(() => {
-    const messageOrNotification = () => {
-      socket.on("receive_message", (message: MessageProps) => {
-        dispatch(
-          messageApi.util.updateQueryData(
-            "getChatMessages",
-            { chatId: message.chat._id },
-            (messagesCache) => {
-              messagesCache.push(message);
-            }
-          )
-        );
-        if (message.chat._id !== store.getState().chatSlice.selectedChat?._id) {
-          console.log("send notification");
-          dispatch(setNotification(message));
-        }
-      });
-      socket.on("send_message_error", (err) => {
-        console.log(err);
-      });
-    };
+    console.log("second");
+    // const messageOrNotification = () => {
+    socket.on("receive_message", (message: MessageProps) => {
+      dispatch(
+        messageApi.util.updateQueryData(
+          "getChatMessages",
+          { chatId: message.chat._id },
+          (messagesCache) => {
+            messagesCache.push(message);
+          }
+        )
+      );
+      if (message.chat._id !== store.getState().chatSlice.selectedChat?._id) {
+        console.log("send notification");
+        dispatch(setNotification(message));
+      }
+    });
+    socket.on("send_message_error", (err) => {
+      console.log(err);
+    });
+    // };
 
-    return () => messageOrNotification();
+    // return () => messageOrNotification();
   }, [dispatch]);
 };
 
