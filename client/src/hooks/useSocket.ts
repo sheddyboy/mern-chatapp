@@ -34,18 +34,18 @@ const useSocket = () => {
   }, []);
 
   useEffect(() => {
-    const createUserRoomWhenConnected = () => {
-      socket.on("connected", () => {
-        console.log("connected received");
+    // const createUserRoomWhenConnected = () => {
+    socket.on("connected", () => {
+      console.log("connected received");
 
-        socket.emit("create_user_room", store.getState().authSlice.user);
-      });
-      socket.on("disconnect", (e) => {
-        console.log("Disconnected from server! Reason: " + e);
-      });
-    };
+      socket.emit("create_user_room", store.getState().authSlice.user);
+    });
+    socket.on("disconnect", (e) => {
+      console.log("Disconnected from server! Reason: " + e);
+    });
+    // };
 
-    return () => createUserRoomWhenConnected();
+    // return () => createUserRoomWhenConnected();
   }, []);
 
   useEffect(() => {
