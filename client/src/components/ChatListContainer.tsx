@@ -21,7 +21,10 @@ import socket from "socket";
 const ChatListContainer = () => {
   const dispatch = useAppDispatch();
   const { isLoading, data: chats } = useFetchUserChatsQuery();
-  const { selectedChat } = useAppSelector((state) => state.chatSlice);
+  const [{ selectedChat }, { user: loggedInUser }] = useAppSelector((state) => [
+    state.chatSlice,
+    state.authSlice,
+  ]);
 
   return (
     <Grid
@@ -67,7 +70,7 @@ const ChatListContainer = () => {
                       selectedChat={selectedChat}
                       onClick={() => {
                         dispatch(setSelectedChat(chat));
-                        socket.emit("join_chat", chat._id);
+                        socket.emit("join_chat", loggedInUser, chat._id);
                       }}
                     />
                   ))}

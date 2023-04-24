@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "app/store";
-import { ChatProps } from "models";
+import { setUser } from "features/Auth/authSlice";
+import { ChatProps, UserProps } from "models";
 import socket from "socket";
 
 const chatApi = createApi({
@@ -25,7 +26,7 @@ const chatApi = createApi({
             ]
           : ["Chat"],
       onCacheEntryAdded(arg, { dispatch }) {
-        socket.on("new_chat_sent", (chat) => {
+        socket.on("new_chat_sent", (chat: ChatProps, user: UserProps) => {
           dispatch(
             chatApi.util.updateQueryData(
               "fetchUserChats",
@@ -35,12 +36,13 @@ const chatApi = createApi({
               }
             )
           );
+          dispatch(setUser(user));
         });
       },
     }),
     singleChat: builder.mutation<ChatProps, { receiverId: string }>({
       query: (body) => ({ url: "/api/chat", method: "POST", body }),
-      invalidatesTags: ["Chat"],
+      // invalidatesTags: ["Chat"],
     }),
     createGroupChat: builder.mutation<
       ChatProps,

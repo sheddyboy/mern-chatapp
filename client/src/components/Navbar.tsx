@@ -6,6 +6,7 @@ import {
   Menu,
   MenuItem,
   Stack,
+  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
@@ -25,16 +26,16 @@ import { setSelectedChat } from "features/Chat/chatSlice";
 import { MessageProps } from "models";
 import { setNotification } from "features/Message/messageSlice";
 import { useFetchUserChatsQuery } from "features/Chat/chatApi";
+import StyledBadge from "./StyledBadge";
 
 const Navbar = () => {
   const { data: chats } = useFetchUserChatsQuery();
   const theme = useTheme();
   const sm = useMediaQuery(theme.breakpoints.down("sm"));
   const dispatch = useAppDispatch();
-  const [{ notifications }, { user }] = useAppSelector((state) => [
-    state.messageSlice,
-    state.authSlice,
-  ]);
+  const [{ notifications }, { user, isSocketConnected }] = useAppSelector(
+    (state) => [state.messageSlice, state.authSlice]
+  );
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
@@ -112,15 +113,30 @@ const Navbar = () => {
             sx={{ cursor: "pointer", position: "relative" }}
             onClick={handleClick}
           >
-            <Avatar
-              sx={{ width: 24, height: 24 }}
-              imgProps={{
-                sx: {
-                  objectPosition: "top",
-                },
-              }}
-              src={user?.picture}
-            />
+            <Tooltip
+              title={
+                isSocketConnected
+                  ? "Websocket Connected"
+                  : "Websocket Disconnected"
+              }
+            >
+              <StyledBadge
+                online={isSocketConnected}
+                overlap="circular"
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                variant="dot"
+              >
+                <Avatar
+                  sx={{ width: 24, height: 24 }}
+                  imgProps={{
+                    sx: {
+                      objectPosition: "top",
+                    },
+                  }}
+                  src={user?.picture}
+                />
+              </StyledBadge>
+            </Tooltip>
             <ExpandMoreIcon fontSize="small" id="options" />
           </Stack>
           <Menu

@@ -1,8 +1,11 @@
+import { Types } from "mongoose";
+
 export interface UserProps {
   name: string;
   email: string;
   password: string;
   picture: string;
+  friends: [string];
   _id: string;
   createdAt: Date;
   updatedAt: Date;

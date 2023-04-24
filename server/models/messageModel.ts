@@ -3,7 +3,12 @@ import chatModel from "./chatModel";
 
 const messageModel = new Schema(
   {
-    sender: { _id: { type: Schema.Types.ObjectId, ref: "User" }, name: String },
+    sender: {
+      _id: { type: Schema.Types.ObjectId, ref: "User" },
+      name: String,
+      picture: String,
+      email: String,
+    },
     message: { type: String, trim: true },
     chat: {
       _id: { type: Schema.Types.ObjectId, ref: "Chat" },

@@ -1,4 +1,6 @@
 import {
+  Avatar,
+  AvatarGroup,
   Box,
   Card,
   CircularProgress,
@@ -24,6 +26,7 @@ import {
   toggleGroupChatSettingsModal,
   toggleProfileModal,
 } from "features/Modal/modalSlice";
+import StyledBadge from "./StyledBadge";
 
 interface ChatBoxProps {
   selectedChat: ChatProps;
@@ -31,7 +34,9 @@ interface ChatBoxProps {
 
 const ChatBox = ({ selectedChat }: ChatBoxProps) => {
   const dispatch = useAppDispatch();
-  const { user: loggedInUser } = useAppSelector((state) => state.authSlice);
+  const { user: loggedInUser, onlineUserIds } = useAppSelector(
+    (state) => state.authSlice
+  );
   const { data: messages, isFetching } = useGetChatMessagesQuery({
     chatId: selectedChat._id,
   });
@@ -57,11 +62,15 @@ const ChatBox = ({ selectedChat }: ChatBoxProps) => {
     };
   }, []);
 
-  const getReceiverName = () => {
+  const getReceiver = () => {
     if (!loggedInUser) return;
-    return selectedChat.users.find((user) => user._id !== loggedInUser._id)
-      ?.name;
+    return selectedChat.users.find((user) => user._id !== loggedInUser._id);
   };
+
+  const getOnlineStatus = (userId: string) => {
+    return onlineUserIds.includes(userId);
+  };
+
   const selectedChatUsers = selectedChat.users.map((user) => {
     return { _id: user._id };
   });
@@ -76,7 +85,6 @@ const ChatBox = ({ selectedChat }: ChatBoxProps) => {
       selectedChatUsers,
       messageInput
     );
-    // sendMessage({ chatId: selectedChat._id, message: messageInput });
 
     setMessageInput("");
   };
@@ -110,11 +118,36 @@ const ChatBox = ({ selectedChat }: ChatBoxProps) => {
           <IconButton onClick={() => dispatch(removeSelectedChat())}>
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6" fontWeight="300">
+          <Typography variant="h6" fontWeight="300" textTransform="capitalize">
             {selectedChat?.isGroupChat
               ? selectedChat.chatName
-              : getReceiverName()}
+              : getReceiver()?.name}
           </Typography>
+          {selectedChat.isGroupChat ? (
+            <AvatarGroup max={3}>
+              {selectedChat.users.map((user) => (
+                <Avatar
+                  sx={{ width: 25, height: 25 }}
+                  key={user._id}
+                  alt={user.name}
+                  src={user.picture}
+                />
+              ))}
+            </AvatarGroup>
+          ) : (
+            <StyledBadge
+              online={getOnlineStatus(getReceiver()?._id ?? "")}
+              overlap="circular"
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              variant="dot"
+            >
+              <Avatar
+                sx={{ width: 25, height: 25 }}
+                alt={getReceiver()?.name}
+                src={getReceiver()?.picture}
+              />
+            </StyledBadge>
+          )}
         </Box>
         {selectedChat.isGroupChat ? (
           <IconButton

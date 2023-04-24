@@ -28,7 +28,7 @@ const ChatItem = ({ chat, onClick, selectedChat }: ChatItemProps) => {
         ":hover": { backgroundColor: "#1976d2", color: "#fff" },
       }}
     >
-      <Typography variant="body1">
+      <Typography variant="body1" textTransform="capitalize">
         {isGroupChat ? chatName : receiverUser?.name}
       </Typography>
       <Typography variant="caption" component="span" fontWeight="600">

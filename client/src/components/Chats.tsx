@@ -11,6 +11,17 @@ interface ChatsProps {
   selectedChat: ChatProps;
 }
 
+const prevMessageByMe = (array: MessageProps[], index: number) => {
+  if (index === 0) {
+    return array[index].sender.picture;
+  }
+  if (array[index].sender._id === array[index - 1].sender._id) {
+    return "";
+  } else {
+    return array[index].sender.picture;
+  }
+};
+
 const Chats = ({
   loggedInUser,
   messages,
@@ -33,11 +44,14 @@ const Chats = ({
       py={1}
       ref={chatsRef}
     >
-      {messages.map((message) => (
+      {messages.map((message, index, array) => (
         <ChatBubble
           key={message._id}
+          sender={message.sender}
+          isGroupChat={message.chat.isGroupChat}
           message={message.message}
           isSentByMe={message.sender._id === loggedInUser._id}
+          senderAvatarUrl={prevMessageByMe(array, index)}
         />
       ))}
       {isTypingInCurrentChat && socketTyping && (

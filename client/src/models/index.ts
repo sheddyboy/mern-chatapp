@@ -20,6 +20,7 @@ export interface UserProps {
   email: string;
   password: string;
   picture: string;
+  friends: [string];
   _id: string;
   createdAt: Date;
   updatedAt: Date;

@@ -7,21 +7,27 @@ import {
   Typography,
 } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "app/hooks";
+import { setSelectedUser } from "features/Auth/authSlice";
 import { toggleProfileModal } from "features/Modal/modalSlice";
-import React from "react";
+import React, { useEffect } from "react";
 
 const ProfileModal = () => {
   const [
     { profileModal, isUserModal },
-    { user: loggedInUser },
+    { user: loggedInUser, selectedUser },
     { selectedChat },
   ] = useAppSelector((state) => [
     state.modalSlice,
     state.authSlice,
     state.chatSlice,
   ]);
-
   const dispatch = useAppDispatch();
+  useEffect(() => {
+    return () => {
+      dispatch(setSelectedUser(null));
+    };
+  }, [dispatch]);
+
   const getSingleChatReceiverUser = () => {
     if (!selectedChat || selectedChat.isGroupChat || !loggedInUser) return;
 
@@ -62,7 +68,9 @@ const ProfileModal = () => {
           <Avatar
             sx={{ width: 80, height: 80, marginBottom: 2 }}
             src={
-              isUserModal
+              selectedUser
+                ? selectedUser.picture
+                : isUserModal
                 ? loggedInUser?.picture
                 : singleChatReceiverUser?.picture
             }
@@ -73,10 +81,18 @@ const ProfileModal = () => {
             }}
           />
           <Typography>
-            {isUserModal ? loggedInUser?.name : singleChatReceiverUser?.name}
+            {selectedUser
+              ? selectedUser.name
+              : isUserModal
+              ? loggedInUser?.name
+              : singleChatReceiverUser?.name}
           </Typography>
           <Typography variant="caption">
-            {isUserModal ? loggedInUser?.email : singleChatReceiverUser?.email}
+            {selectedUser
+              ? selectedUser.email
+              : isUserModal
+              ? loggedInUser?.email
+              : singleChatReceiverUser?.email}
           </Typography>
         </CardContent>
       </Card>

@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { Server, Socket } from "socket.io";
 import { ChatProps, MessageProps, UserProps } from "../../types";
 import messageModel from "../models/messageModel";
+import userModel from "../models/userModel";
 
 const socketControllers = (socket: Socket, io: Server) => {
   socket.emit("connected");
@@ -14,21 +15,51 @@ const socketControllers = (socket: Socket, io: Server) => {
     socket.join(user._id);
     console.log(user.name + " joined room " + user._id);
     socket.emit("connected");
+    socket.to(user.friends).emit("a_user_connected", user._id);
+
+    // User leaves chat
+    socket.on("disconnecting", (e) => {
+      if (socket.rooms.has(user._id)) {
+        console.log(user.name + " left room " + user._id);
+        socket.to(user.friends).emit("a_user_disconnected", user._id);
+      }
+    });
+  });
+
+  // Check online users
+  socket.on("check_online_users", (usersIds: string[]) => {
+    const onlineUsers = usersIds.filter((userId) =>
+      io.sockets.adapter.rooms.has(userId)
+    );
+    socket.emit("get_online_users", onlineUsers);
   });
 
   //   New chat
   socket.on("new_chat", (chat: ChatProps, user: UserProps) => {
-    chat.users.map((chatUser) => {
-      if (chatUser._id === user._id) return;
-      socket.to(chatUser._id).emit("new_chat_sent", chat);
+    chat.users.map((chatUser, index, array) => {
+      userModel
+        .findOneAndUpdate(
+          { _id: chatUser._id },
+          {
+            $addToSet: {
+              friends: {
+                $each: chat.users.filter((user) => user._id !== chatUser._id),
+              },
+            },
+          },
+          { new: true }
+        )
+        .then((user) => {
+          io.to(chatUser._id).emit("new_chat_sent", chat, user);
+        });
     });
   });
 
   //   User joins chat
-  socket.on("join_chat", (chatId: string) => {
+  socket.on("join_chat", (loggedInUser: UserProps, chatId: string) => {
     if (socket.rooms.has(chatId)) return;
     socket.join(chatId);
-    console.log("User joined room " + chatId);
+    console.log(loggedInUser.name + " joined room " + chatId);
   });
 
   //   User sends message
@@ -50,7 +81,12 @@ const socketControllers = (socket: Socket, io: Server) => {
             users: usersIds,
           },
           message: sentMessage,
-          sender: { _id: sender._id, name: sender.name },
+          sender: {
+            _id: sender._id,
+            name: sender.name,
+            picture: sender.picture,
+            email: sender.email,
+          },
         });
 
         const userIds = chat.users.map((user) => user._id);
