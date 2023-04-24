@@ -32,6 +32,10 @@ const chatApi = createApi({
               "fetchUserChats",
               undefined,
               (cachedChats) => {
+                if (
+                  cachedChats.some((cachedChat) => cachedChat._id === chat._id)
+                )
+                  return;
                 cachedChats.push(chat);
               }
             )

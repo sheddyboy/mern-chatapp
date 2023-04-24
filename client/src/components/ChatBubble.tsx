@@ -34,7 +34,6 @@ const ChatBubble = ({
         display: "flex",
         flexDirection: "row",
         justifyContent: isSentByMe ? "flex-end" : "flex-start",
-        marginBottom: 1,
       }}
     >
       {!isSentByMe && (
