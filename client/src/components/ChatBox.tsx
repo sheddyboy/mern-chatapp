@@ -78,6 +78,7 @@ const ChatBox = ({ selectedChat }: ChatBoxProps) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!messageInput) return;
+    socket.emit("stop_typing", selectedChat?._id);
     socket.emit(
       "send_message",
       loggedInUser,
@@ -101,7 +102,7 @@ const ChatBox = ({ selectedChat }: ChatBoxProps) => {
       console.log("not typing");
       socket.emit("stop_typing", selectedChat?._id);
       setIsTyping(false);
-    }, 500)
+    }, 3000)
   );
 
   return (
